@@ -87,9 +87,7 @@ Initially, a TOTP secret has to be generated in the Feathers app, send to the fr
 
 ![Test](images/process_flow_initial.png)
 
-#### 1. Frontend posts local sign-in
-
-The setup phase starts with the frontend sending a normal sign-in request to the Feathers app, for example:
+The setup phase starts with the frontend sending a normal sign-in request to the Feathers app (1), for example:
 
 ```json
 {
@@ -99,11 +97,7 @@ The setup phase starts with the frontend sending a normal sign-in request to the
 }
 ```
 
-Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `topt2fa` hook will check if TOTP is required for this user and if so, it will check if a TOTP secret has already been stored in the user data. If there is already a secret, the hook will trigger an 403 error `Token required.`, and the frontend has to ask the user for this token (see next chapter). Otherwise it will generate the secret:
-
-#### 2. Creation of secret and QR code
-
-The `topt2fa` hook generates a TOTP secret and a QR code image containing the auth path with this secret and adds it to the response to the client/frontend:
+Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `topt2fa` hook will check if TOTP is required for this user and if so, it will check if a TOTP secret has already been stored in the user data. If there is already a secret, the hook will trigger an 403 error `Token required.`, and the frontend has to ask the user for this token (see next chapter). Otherwise the `topt2fa` hook generates a TOTP secret and a QR code image containing the auth path with this secret and adds it to the response to the client/frontend (2):
 
 ```json
 {
@@ -112,19 +106,9 @@ The `topt2fa` hook generates a TOTP secret and a QR code image containing the au
 }
 ```
 
-The next steps have to be implemented in your frontend:
+The next steps have to be implemented in your frontend: The frontend ("login page") analyses the response. If it contains the secret and QR code, the frontend shows the QR code, which is just a base64 encoded image. This QR code can be scanned with the Authenticator app (3), which saves the secret and presents a token based on this secret to the user (4). The user types the token in an input field in the frontend, e.g. next to the normal login fields.
 
-#### 3. User scans the QR code with the app
-
-The frontend ("login page") analyses the response. If it contains the secret and QR code, the frontend shows the QR code, which is just a base64 encoded image.
-
-#### 4. App saves the secret
-
-The app saves the secret and presents a token to the user. The user types the token in an input field in the frontend, e.g. just below the normal login fields.
-
-#### 5. Fronted posts secret and token
-
-The frontend sends the secret together with the token back to the authentication service in the Feathers app. The request body contains also the normal authentication:
+The frontend sends the secret together with the token back to the authentication service in the Feathers app (5). The request body contains also the normal authentication:
 
 ```json
 {
@@ -136,11 +120,7 @@ The frontend sends the secret together with the token back to the authentication
 }
 ```
 
-The `topt2fa` hook verifies the token and stores the secret in the user data.
-
-#### 6. Response with JWT
-
-Finally, the backend responses with the normal JWT.
+The `topt2fa` hook verifies the token and stores the secret in the user data.Finally, the backend responses with the normal JWT (6).
 
 ### Operation phase
 
@@ -150,9 +130,7 @@ The frontend may send the credentials together with the TOTP token to the Feathe
 
 ![Test](images/process_flow.png)
 
-#### 1. Frontend posts local sign-in
-
-The frontend sends a normal sign-in request to the Feathers app, for example:
+The frontend sends a normal sign-in request to the Feathers app (1), for example:
 
 ```json
 {
@@ -164,21 +142,11 @@ The frontend sends a normal sign-in request to the Feathers app, for example:
 
 Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `topt2fa` hook checks if TOTP is required for this user and if so, it will check if a TOTP secret has already been stored in the user data. If so, it will check if a valid token is part of the frontend request.
 
-#### 2. Response with missing token error
+If the token is missing, the hook will trigger a `Token required.` error (2). Otherwise the hook will continue with the final step (6).
 
-If the token is missing, the hook will trigger a `Token required.` error. Otherwise the hook will continue with the final step 6.
+The frontend should ask the user to enter a valid token from the Authenticator app (3). Moreover, the login form has to be extended with an input field for this token.
 
-#### 3. User opens Authenticator app
-
-The frontend should ask the user to enter a valid token from the Authenticator app. The login form has to be extended with an input field for this token.
-
-#### 4. Authenticator app shows token
-
-The user enters the token from the app.
-
-#### 5. Frontend posts credentials and token
-
-The frontend sends the normal credentials together with the TOTP token to the Feathers authentication service:
+The user enters the token from the app, and the frontend sends the normal credentials together with the TOTP token to the Feathers authentication service (5):
 
 ```json
 {
@@ -189,6 +157,4 @@ The frontend sends the normal credentials together with the TOTP token to the Fe
 }
 ```
 
-#### 6. Response with JWT
-
-Finally, the backend responses with the normal JWT.
+Finally, the backend responses with the normal JWT (6).
