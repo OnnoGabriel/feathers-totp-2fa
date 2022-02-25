@@ -1,0 +1,71 @@
+{
+  "name": "feathers-totp-2fa",
+  "version": "0.1.3",
+  "description": "TOTP Two Factor Authentication for Feathers Apps",
+  "author": "Onno Gabriel",
+  "homepage": "https://github.com/OnnoGabriel/feathers-totp-2fa",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/OnnoGabriel/feathers-totp-2fa"
+  },
+  "keywords": [
+    "feathersjs",
+    "feathers-plugin",
+    "2fa",
+    "totp"
+  ],
+  "license": "MIT",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md",
+    "src/**",
+    "dist/**"
+  ],
+  "scripts": {
+    "build": "shx rm -rf dist/ && tsup src/index.ts --format cjs,esm --dts",
+    "version": "npm run build",
+    "release": "np",
+    "mocha": "cross-env TS_NODE_PROJECT='tsconfig.test.json' mocha --require ts-node/register --timeout 40000",
+    "test": "npm run mocha",
+    "test:watch": "npm run mocha -- --watch",
+    "coverage": "nyc npm run test",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "@feathersjs/errors": "^4.5.12",
+    "@feathersjs/feathers": "3.3.1",
+    "feathers-hooks-common": "^5.0.6",
+    "otplib": "^12.0.1",
+    "qrcode": "^1.5.0"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.1",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.10.3",
+    "@typescript-eslint/eslint-plugin": "^4.33.0",
+    "@typescript-eslint/parser": "^4.33.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.32.0",
+    "eslint-plugin-security": "^1.4.0",
+    "feathers-memory": "^4.1.0",
+    "mocha": "^9.1.1",
+    "np": "^7.5.0",
+    "nyc": "^15.1.0",
+    "shx": "^0.3.3",
+    "ts-node": "^10.2.1",
+    "tsup": "^5.11.10",
+    "type-fest": "^2.9.0",
+    "typescript": "^4.4.3"
+  }
+}
