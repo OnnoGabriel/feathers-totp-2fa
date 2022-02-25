@@ -30,7 +30,7 @@ npm i feathers-totp-2fa
 
 ## Documentation
 
-See the [documentation](docs/index) for more details about the configuration and usage of this package.
+See the [documentation](docs/index.md) for more details about the configuration and usage of this package.
 
 ## License
 
