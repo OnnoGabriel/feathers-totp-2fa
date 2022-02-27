@@ -8,7 +8,7 @@ The setup requires the addition of a single hook to the authentication service, 
 
 ## Backend Implementation
 
-Just add the `topt2fa` hook of this package to the _after_ hooks of the `create` method in the `authentication` service, e.g.:
+Just add the `totp2fa` hook of this package to the _after_ hooks of the `create` method in the `authentication` service, e.g.:
 
 ```js
 const {
@@ -18,7 +18,7 @@ const {
 const { LocalStrategy } = require("@feathersjs/authentication-local");
 const { expressOauth } = require("@feathersjs/authentication-oauth");
 
-const { topt2fa } = require("feathers-totp-2fa").hooks;
+const { totp2fa } = require("feathers-totp-2fa").hooks;
 
 module.exports = (app) => {
   const authentication = new AuthenticationService(app);
@@ -29,16 +29,16 @@ module.exports = (app) => {
   app.use("/authentication", authentication);
   app.configure(expressOauth());
 
-  // TOPT 2FA Hook
+  // TOTP 2FA Hook
   app.service("authentication").hooks({
     after: {
-      create: [topt2fa()],
+      create: [totp2fa()],
     },
   });
 };
 ```
 
-The `topt2fa` hook can be invoked with the following options:
+The `totp2fa` hook can be invoked with the following options:
 
 - `usersService`: the name of the users service (default: `users`),
 
@@ -51,10 +51,10 @@ The `topt2fa` hook can be invoked with the following options:
 For example:
 
 ```js
- // TOPT 2FA Hook
+ // TOTP 2FA Hook
 app.service("authentication").hooks({
     after: {
-      create: [topt2fa({
+      create: [totp2fa({
           usersService: "users",
           secretFieldName: "totp2faSecret",
           requiredFieldName: "totp2faRequired",
@@ -97,7 +97,7 @@ The setup phase starts with the frontend sending a normal sign-in request to the
 }
 ```
 
-Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `topt2fa` hook will be invoked and check if TOTP 2FA is required for this user and if so, it will check if a TOTP secret has already been stored in the user data. If there is already a secret, the hook will trigger a 403 error `Token required.`, and the frontend has to ask the user for this token (see next section). Otherwise, the `topt2fa` hook generates a TOTP secret and a QR code image containing the auth path with this secret and adds it to the response to the client/frontend (2):
+Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `totp2fa` hook will be invoked and check if TOTP 2FA is required for this user and if so, it will check if a TOTP secret has already been stored in the user data. If there is already a secret, the hook will trigger a 403 error `Token required.`, and the frontend has to ask the user for this token (see next section). Otherwise, the `totp2fa` hook generates a TOTP secret and a QR code image containing the auth path with this secret and adds it to the response to the client/frontend (2):
 
 ```json
 {
@@ -120,7 +120,7 @@ The frontend sends the secret together with the token back to the authentication
 }
 ```
 
-The `topt2fa` hook verifies the token and stores the secret in the user data. Finally, the backend responses with the normal JWT (6).
+The `totp2fa` hook verifies the token and stores the secret in the user data. Finally, the backend responses with the normal JWT (6).
 
 ### Operation phase
 
@@ -140,7 +140,7 @@ The frontend sends a normal sign-in request to the Feathers app (1). For example
 }
 ```
 
-Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `topt2fa` hook checks if TOTP is required for this user, and if so, it will check if a TOTP secret has already been stored in the user data. If so, it will check if a valid token is part of the frontend request.
+Feathers will authenticate the user, i. e. generate a JWT and add it to the response object. After this, the `totp2fa` hook checks if TOTP is required for this user, and if so, it will check if a TOTP secret has already been stored in the user data. If so, it will check if a valid token is part of the frontend request.
 
 If the token is missing, the hook will trigger a `Token required` error (2). Otherwise the hook will continue with the final step (6).
 
@@ -157,4 +157,4 @@ The user enters the token from the app, and the frontend sends the normal creden
 }
 ```
 
-If the `topt2fa` hook verifies this token, the backend will respond with the normal JWT (6).
+If the `totp2fa` hook verifies this token, the backend will respond with the normal JWT (6).

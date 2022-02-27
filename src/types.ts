@@ -4,7 +4,7 @@ export type User = {
   base32secret: string;
 };
 
-export interface Options {
+export interface TotpOptions {
   usersService: string;
   secretFieldName: string;
   requiredFieldName: string;

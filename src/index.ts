@@ -1,5 +1,5 @@
-import topt2fa from "./hooks/totp2fa";
+import totp2fa from "./hooks/totp2fa";
 
 export const hooks = {
-  topt2fa,
+  totp2fa,
 };
