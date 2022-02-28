@@ -2,12 +2,12 @@ import { authenticator } from "otplib";
 import qrcode from "qrcode";
 
 import type { Application } from "@feathersjs/feathers";
-import type { User, Options, QrImageSecret } from "../types";
+import type { User, TotpOptions, QrImageSecret } from "../types";
 
 export default async function getQrCodeSecret(
   app: Application,
   user: User,
-  options: Options
+  options: TotpOptions
 ): Promise<QrImageSecret> {
   // Get secret (base32 encoded)
   const secret = user[options.secretFieldName]

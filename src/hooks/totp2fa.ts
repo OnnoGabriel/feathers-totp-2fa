@@ -6,7 +6,7 @@ import getQrCodeSecret from "../utils/get-qr-code-secret";
 import verifyToken from "../utils/verify-token";
 import { defaultOptions } from "../options";
 
-import type { Options } from "../types";
+import type { TotpOptions } from "../types";
 
 /**
  * TOTP 2FA Hook
@@ -14,7 +14,7 @@ import type { Options } from "../types";
  * To be called in the after hook of the create method in the authentication service
  */
 export default function totp2fa(
-  options?: Options
+  options?: TotpOptions
 ): (context: HookContext) => HookContext {
   return async (context: HookContext): HookContext => {
     options = Object.assign(defaultOptions, options);
