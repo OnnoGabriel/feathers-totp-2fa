@@ -101,8 +101,10 @@ Feathers will authenticate the user, i. e. generate a JWT and add it to the resp
 
 ```json
 {
-  "secret": "[TOTP secret]",
-  "qr": "[QR code image, base64 encoded]"
+  "data": {
+    "secret": "[TOTP secret]",
+    "qr": "[QR code image, base64 encoded]"
+  }
 }
 ```
 

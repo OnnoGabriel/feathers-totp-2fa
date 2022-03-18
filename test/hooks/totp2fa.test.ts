@@ -65,7 +65,11 @@ describe("totp2fa.test.ts", function () {
 
   it("returns QR code and secret.", async () => {
     const resultContext = await totp2fa()(context);
-    assert("qr" in resultContext.result && "secret" in resultContext.result);
+    assert(
+      "data" in resultContext.result &&
+        "qr" in resultContext.result.data &&
+        "secret" in resultContext.result.data
+    );
   });
 
   it("saves secret if correct token is given.", async () => {
@@ -114,11 +118,16 @@ describe("totp2fa.test.ts", function () {
       secret: secret,
       token: token,
     };
-    context.result.user.totp2faSecret = secret;
+
+    await totp2fa()(context);
+
+    const user = await app.service("users").get("1234");
+    assert.ok(user.totp2faSecret, context.data.secret);
 
     await assert.rejects(totp2fa()(context), (err: any) => {
       assert.strictEqual(err.name, "BadRequest");
       assert.strictEqual(err.message, "Secret already saved.");
+
       return true;
     });
   });
@@ -133,7 +142,11 @@ describe("totp2fa.test.ts", function () {
       password: context.data.password,
       token: token,
     };
-    context.result.user.totp2faSecret = secret;
+
+    await app.service("users").patch(context.result.user.id, {
+      totp2faSecret: secret,
+    });
+
     const resultContext = await totp2fa()(context);
     assert(
       "accessToken" in resultContext.result && "user" in resultContext.result
@@ -149,7 +162,11 @@ describe("totp2fa.test.ts", function () {
       password: context.data.password,
       token: "xxxx",
     };
-    context.result.user.totp2faSecret = secret;
+
+    await app.service("users").patch(context.result.user.id, {
+      totp2faSecret: secret,
+    });
+
     await assert.rejects(totp2fa()(context), (err: any) => {
       assert.strictEqual(err.name, "BadRequest");
       assert.strictEqual(err.message, "Invalid token.");

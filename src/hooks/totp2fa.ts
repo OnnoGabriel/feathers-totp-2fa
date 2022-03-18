@@ -24,18 +24,28 @@ export default function totp2fa(
 
     const { app, data, result } = context;
 
+    const usersService = app.service(options.usersService);
+    const usersServiceId = usersService.id;
+
     // Only run if login via local strategy
     if (!data || !result || data.strategy !== "local") {
       return context;
     }
 
     // Only run with authenticated users
-    const { user } = result;
+    let { user } = result;
+
+    try {
+      user = await usersService._get(user[usersServiceId]);
+    } catch (err) {
+      throw new BadRequest("User not found.");
+    }
+
     if (!user) {
       return context;
     }
 
-    // Only run with if Totp 2FA is required for this user
+    // Only run if Totp 2FA is required for this user
     if (
       user[options.requiredFieldName] !== undefined &&
       !user[options.requiredFieldName]
@@ -45,7 +55,9 @@ export default function totp2fa(
 
     // Return QR code and secret?
     if (!data.token && !data.secret && !user[options.secretFieldName]) {
-      context.result = await getQrCodeSecret(app, user, options);
+      context.result = {
+        data: await getQrCodeSecret(app, user, options),
+      };
       return context;
     }
 
@@ -61,11 +73,15 @@ export default function totp2fa(
       if (!user[options.secretFieldName]) {
         const patchData = {};
         patchData[options.secretFieldName] = data.secret;
-
-        await app.service("users").patch(user.id, patchData);
+        try {
+          await usersService._patch(user[usersServiceId], patchData);
+        } catch (err) {
+          throw new BadRequest("Could not save secret.");
+        }
       } else {
         throw new BadRequest("Secret already saved.");
       }
+
       return context;
     }
 
