@@ -1,0 +1,101 @@
+<template>
+  <div>
+    <div v-if="!qrCode">
+      <h1>Login</h1>
+      <form ref="login-form" @submit.prevent="login">
+        <label for="email">E-Mail:</label>
+        <input type="text" id="email" v-model="email" /><br />
+        <label for="password">Password:</label>
+        <input type="password" id="email" v-model="password" /><br />
+        <div v-if="tokenRequired">
+          <p>Please enter Autenticator app code:</p>
+          <label for="token">Code:</label>
+          <input id="token" type="text" v-model="token" /><br />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+
+    <div v-if="qrCode">
+      <h1>Setup Authenticator App</h1>
+      <p>Please scan the following QR code:</p>
+      <form ref="setup-form" @submit.prevent="submitSecret">
+        <img :src="qrCode" alt="qr-code" />
+        <p>...and enter the displayed code:</p>
+        <label for="setup-token">Code:</label>
+        <input id="setup-token" type="text" v-model="token" /><br />
+        <button type="submit">Submit</button>
+      </form>
+    </div>
+  </div>
+</template>
+
+<script>
+  import feathersClient from "@/plugins/feathers-client";
+
+  export default {
+    data() {
+      return {
+        email: "",
+        password: "",
+        tokenRequired: false,
+        token: "",
+        qrCode: null,
+        secret: null,
+      };
+    },
+
+    methods: {
+      async login() {
+        try {
+          const data = {
+            strategy: "local",
+            email: this.email,
+            password: this.password,
+          };
+          if (this.tokenRequired && this.token) {
+            data.token = this.token;
+          }
+
+          const result = await feathersClient.authenticate(data);
+
+          if (result.data && result.data.qr) {
+            this.qrCode = result.data.qr;
+            this.secret = result.data.secret;
+            this.token = "";
+          }
+
+          if (result.accessToken) {
+            // Do whatever necessary to save access token and redirect the user
+          }
+        } catch (error) {
+          console.log(error);
+          if (
+            error.message !== undefined &&
+            error.message === "Token required."
+          ) {
+            this.tokenRequired = true;
+          }
+        }
+      },
+
+      async submitSecret() {
+        try {
+          this.qrCode = null;
+          await feathersClient.authenticate({
+            strategy: "local",
+            email: this.email,
+            password: this.password,
+            secret: this.secret,
+            token: this.token,
+          });
+          this.tokenRequired = true;
+          // Perform login with email, password + token
+          await this.login();
+        } catch (error) {
+          console.log(error);
+        }
+      },
+    },
+  };
+</script>
