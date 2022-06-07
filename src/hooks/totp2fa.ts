@@ -72,7 +72,7 @@ export default function totp2fa(
 
       if (!user[options.secretFieldName]) {
         const patchData = {};
-        const crypto = context.app.get('crypto');
+        const crypto = context.app.get(options.cryptoSetting);
         patchData[options.secretFieldName] = crypto && crypto.encrypt ? crypto.encrypt(data.secret) : data.secret;
         try {
           await usersService._patch(user[usersServiceId], patchData);
@@ -88,7 +88,7 @@ export default function totp2fa(
 
     // Verify token?
     if (data.token) {
-      const crypto = context.app.get('crypto');
+      const crypto = context.app.get(options.cryptoSetting);
       const secret = crypto && crypto.decrypt ? crypto.decrypt(user[options.secretFieldName]) : user[options.secretFieldName];
       if (!verifyToken(data.token, secret)) {
         throw new BadRequest("Invalid token.");

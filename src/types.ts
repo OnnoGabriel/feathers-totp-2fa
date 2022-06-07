@@ -8,6 +8,7 @@ export interface TotpOptions {
   usersService: string;
   secretFieldName: string;
   requiredFieldName: string;
+  cryptoSetting: string;
   applicationName: string;
 }
 
