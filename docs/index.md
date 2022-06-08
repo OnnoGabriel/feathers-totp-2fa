@@ -46,7 +46,7 @@ The `totp2fa` hook can be invoked with the following options:
 
 - `requiredFieldName`: the name of the field in the user model which indicate if 2FA is required for this user (default: `totp2faRequired`),
 
-- `cryptoSetting`: the name of the app setting to retrieve the crypto object from which `encrypt()` and `decrypt()` will be applied to the TOTP secret (default: `crypto`),
+- `cryptoSetting`: the crypto object from which `encrypt()` and `decrypt()` will be applied to the TOTP secret,
 
 - `applicationName`: the name of the application, which will be shown in the Authenticator app (default: `Feathers App`).
 

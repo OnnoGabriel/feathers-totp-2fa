@@ -8,8 +8,13 @@ export interface TotpOptions {
   usersService: string;
   secretFieldName: string;
   requiredFieldName: string;
-  cryptoSetting: string;
+  cryptoUtil: CryptoUtil;
   applicationName: string;
+}
+
+export interface CryptoUtil {
+  encrypt(text: string): string;
+  decrypt(text: string): string;
 }
 
 export interface QrImageSecret {
