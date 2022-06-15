@@ -5,10 +5,16 @@ export type User = {
 };
 
 export interface TotpOptions {
-  usersService: string;
-  secretFieldName: string;
-  requiredFieldName: string;
-  applicationName: string;
+  usersService?: string;
+  secretFieldName?: string;
+  requiredFieldName?: string;
+  cryptoUtil?: CryptoUtil;
+  applicationName?: string;
+}
+
+export interface CryptoUtil {
+  encrypt(text: string): string;
+  decrypt(hash: string): string;
 }
 
 export interface QrImageSecret {

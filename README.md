@@ -2,7 +2,7 @@
 
 [![Project Status: WIP – Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://www.repostatus.org/badges/latest/wip.svg)](https://www.repostatus.org/#wip)
 
-> Simple two-factor authentication for Feathers using time-based one-time passwords (TOTP) _aka_ "Authenticator app".
+> Simple two-factor authentication for Feathers using time-based one-time passwords (TOTP) _aka_ "2FA with Authenticator apps".
 
 This package provides a [Feathers](https://docs.feathersjs.com/) hook, which adds TOTP two-factor authentication (2FA) functionality to the authentication process. Secret generation and token verification is performed using the [otplib](https://github.com/yeojz/otplib) library.
 
@@ -24,8 +24,8 @@ npm i feathers-totp-2fa
 - [x] Add an option for the name of the `totpSecret` field name,
 - [x] Add an option for the app name (shown in Authenticator app),
 - [x] Replace `speakeasy` with `otplib`
-- [ ] Add an option for the secret encoding,
-- [ ] Add an option for the encryption method,
+- [x] Add an option for the secret encoding,
+- [x] Add an option for the encryption method,
 - [ ] Add an option for the expiration date of the secret (useful? TBD).
 
 ## Documentation
