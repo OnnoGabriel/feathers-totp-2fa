@@ -38,7 +38,7 @@ module.exports = (app) => {
 };
 ```
 
-The `totp2fa` hook can be invoked with the following options:
+The `totp2fa` hook can be invoked with the following options (all optional):
 
 - `usersService`: the name of the users service (default: `users`),
 
@@ -46,11 +46,11 @@ The `totp2fa` hook can be invoked with the following options:
 
 - `requiredFieldName`: the name of the field in the user model which indicate if 2FA is required for this user (default: `totp2faRequired`),
 
-- `cryptoUtil`: the crypto object from which `encrypt()` and `decrypt()` will be applied to the TOTP secret,
+- `cryptoUtil`: the crypto object containing `encrypt()` and `decrypt()` methods, which will be used by the hook to encrypt and decrypt the TOTP secret. The methods should accept one string as a parameter and return the encrypted/decrypted string. See the tests for a more detailed example.
 
 - `applicationName`: the name of the application, which will be shown in the Authenticator app (default: `Feathers App`).
 
-For example:
+A complete example:
 
 ```js
  // TOTP 2FA Hook
@@ -61,11 +61,17 @@ app.service("authentication").hooks({
           secretFieldName: "totp2faSecret",
           requiredFieldName: "totp2faRequired",
           applicationName: "My Feathers App"
+          cryptoUtil: {
+            encrypt: app.get('my-encryption-method')
+            decrypt: app.get('my-decryption-method')
+          }
       })],
     },
   });
 };
 ```
+
+In this example, the crypto methods are taken from the Feathers app configuration. But they can be defined anywhere. If `cryptoUtil` is not given or null, the plain secret will be stored in the database.
 
 The `users` model of your app has to be extended with the following fields:
 
@@ -79,7 +85,7 @@ The `users` model of your app has to be extended with the following fields:
 
 There are two phases:
 
-1. **Setup up phase:** The creation of a TOTP secret and its storage in the database and in an Athenticator app.
+1. **Setup up phase:** The creation of a TOTP secret and its storage in the database and in an Authenticator app.
 
 2. **Operation phase:** The validation of a TOTP token in the login process.
 
@@ -87,7 +93,7 @@ There are two phases:
 
 Initially, a TOTP secret has to be generated in the Feathers app, send to the frontend together with a QR code, where the user can scan the QR code with an Authenticator app on a smartphone/tablet. The necessary steps are shown in the following figure and are described below:
 
-![Test](images/process_flow_initial.png)
+![Process Flow (initial phase)](images/process_flow_initial.png)
 
 The setup phase starts with the frontend sending a normal sign-in request to the Feathers app (1). For example:
 
@@ -132,7 +138,7 @@ In normal operation, the user will login and add the TOTP token, which is shown 
 
 The frontend may send the credentials together with the TOTP token to the Feathers authentication servce. Or it sends the normal credentials first, receives an `Token required` error and sends in a second step credentials together with the TOTP token. The latter approach may be used if 2FA is not required for all users. This process flow is described in the following:
 
-![Test](images/process_flow.png)
+![Process Flow (operation phase)](images/process_flow.png)
 
 The frontend sends a normal sign-in request to the Feathers app (1). For example:
 
