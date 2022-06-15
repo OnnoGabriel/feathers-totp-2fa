@@ -1,6 +1,6 @@
 {
   "name": "feathers-totp-2fa",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "TOTP Two Factor Authentication for Feathers Apps",
   "author": "Onno Gabriel",
   "homepage": "https://github.com/OnnoGabriel/feathers-totp-2fa",
