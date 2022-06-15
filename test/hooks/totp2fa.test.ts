@@ -2,12 +2,40 @@ import assert from "assert";
 import { authenticator } from "otplib";
 import feathers, { Application } from "@feathersjs/feathers";
 import { Service } from "feathers-memory";
+import crypto from "crypto";
 
 import totp2fa from "../../src/hooks/totp2fa";
 
 describe("totp2fa.test.ts", function () {
   let app: Application;
   let context;
+
+  // Setup encryption method for saving encrypted secrets
+  const algorithm = "aes-256-ctr";
+  const secretKey = crypto.randomBytes(32);
+  const secretIv = crypto.randomBytes(16);
+
+  const encrypt = (text: string) => {
+    const cipher = crypto.createCipheriv(algorithm, secretKey, secretIv);
+    const encrypted = Buffer.concat([cipher.update(text), cipher.final()]);
+
+    return encrypted.toString("hex");
+  };
+
+  const decrypt = (hash: string) => {
+    const decipher = crypto.createDecipheriv(algorithm, secretKey, secretIv);
+    const decrpyted = Buffer.concat([
+      decipher.update(Buffer.from(hash, "hex")),
+      decipher.final(),
+    ]);
+
+    return decrpyted.toString();
+  };
+
+  const cryptoUtil = {
+    encrypt,
+    decrypt,
+  };
 
   beforeEach(async () => {
     app = feathers();
@@ -86,7 +114,7 @@ describe("totp2fa.test.ts", function () {
     await totp2fa()(context);
 
     const user = await app.service("users").get("1234");
-    assert.ok(user.totp2faSecret, context.data.secret);
+    assert.strictEqual(user.totp2faSecret, context.data.secret);
   });
 
   it("does not save secret if incorrect token is given.", async () => {
@@ -107,7 +135,7 @@ describe("totp2fa.test.ts", function () {
     });
   });
 
-  it("does not save secret again.", async () => {
+  it("does not overwrite existing secret.", async () => {
     const secret = authenticator.generateSecret();
     const token = authenticator.generate(secret);
 
@@ -122,7 +150,7 @@ describe("totp2fa.test.ts", function () {
     await totp2fa()(context);
 
     const user = await app.service("users").get("1234");
-    assert.ok(user.totp2faSecret, context.data.secret);
+    assert.strictEqual(user.totp2faSecret, context.data.secret);
 
     await assert.rejects(totp2fa()(context), (err: any) => {
       assert.strictEqual(err.name, "BadRequest");
@@ -136,16 +164,16 @@ describe("totp2fa.test.ts", function () {
     const secret = authenticator.generateSecret();
     const token = authenticator.generate(secret);
 
+    await app.service("users").patch(context.result.user.id, {
+      totp2faSecret: secret,
+    });
+
     context.data = {
       strategy: "local",
       email: context.data.email,
       password: context.data.password,
       token: token,
     };
-
-    await app.service("users").patch(context.result.user.id, {
-      totp2faSecret: secret,
-    });
 
     const resultContext = await totp2fa()(context);
     assert(
@@ -156,6 +184,10 @@ describe("totp2fa.test.ts", function () {
   it("does not validate token.", async () => {
     const secret = authenticator.generateSecret();
 
+    await app.service("users").patch(context.result.user.id, {
+      totp2faSecret: secret,
+    });
+
     context.data = {
       strategy: "local",
       email: context.data.email,
@@ -163,14 +195,58 @@ describe("totp2fa.test.ts", function () {
       token: "xxxx",
     };
 
-    await app.service("users").patch(context.result.user.id, {
-      totp2faSecret: secret,
-    });
-
     await assert.rejects(totp2fa()(context), (err: any) => {
       assert.strictEqual(err.name, "BadRequest");
       assert.strictEqual(err.message, "Invalid token.");
       return true;
     });
+  });
+
+  it("saves encrypted secret.", async () => {
+    const secret = authenticator.generateSecret();
+    const token = authenticator.generate(secret);
+
+    context.data = {
+      strategy: "local",
+      email: context.data.email,
+      password: context.data.password,
+      secret: secret,
+      token: token,
+    };
+
+    await totp2fa({
+      cryptoUtil: cryptoUtil,
+    })(context);
+
+    const user = await app.service("users").get("1234");
+
+    assert.strictEqual(
+      user.totp2faSecret,
+      cryptoUtil.encrypt(context.data.secret)
+    );
+  });
+
+  it("validates token with encrypted secret.", async () => {
+    const secret = authenticator.generateSecret();
+    const token = authenticator.generate(secret);
+
+    await app.service("users").patch(context.result.user.id, {
+      totp2faSecret: cryptoUtil.encrypt(secret),
+    });
+
+    context.data = {
+      strategy: "local",
+      email: context.data.email,
+      password: context.data.password,
+      token: token,
+    };
+
+    const resultContext = await totp2fa({
+      cryptoUtil: cryptoUtil,
+    })(context);
+
+    assert(
+      "accessToken" in resultContext.result && "user" in resultContext.result
+    );
   });
 });
