@@ -15,8 +15,8 @@ import type { TotpOptions } from "../types";
  */
 export default function totp2fa(
   options?: TotpOptions
-): (context: HookContext) => HookContext {
-  return async (context: HookContext): HookContext => {
+): (context: HookContext) => Promise<HookContext> {
+  return async (context: HookContext): Promise<HookContext> => {
     options = Object.assign(defaultOptions, options);
 
     // Only run in the after hook of the create method
@@ -73,7 +73,7 @@ export default function totp2fa(
       if (!user[options.secretFieldName]) {
         const patchData = {};
         const crypto = options.cryptoUtil;
-        patchData[options.secretFieldName] = crypto && crypto.encrypt ? crypto.encrypt(data.secret) : data.secret;
+        patchData[options.secretFieldName] = crypto?.encrypt ? crypto.encrypt(data.secret) : data.secret;
         try {
           await usersService._patch(user[usersServiceId], patchData);
         } catch (err) {
