@@ -1,7 +1,6 @@
-import { authenticator } from "otplib";
 import { BadRequest } from "@feathersjs/errors";
+import { authenticator } from "@otplib/v12-adapter";
 
-import type { VerifyResult } from "../types";
 
 export default function verifyToken(
   userToken: string,

@@ -1,8 +1,8 @@
-import assert from "assert";
-import { authenticator } from "otplib";
 import feathers, { Application } from "@feathersjs/feathers";
-import { Service } from "feathers-memory";
+import { authenticator } from "@otplib/v12-adapter";
+import assert from "assert";
 import crypto from "crypto";
+import { Service } from "feathers-memory";
 
 import totp2fa from "../../src/hooks/totp2fa";
 

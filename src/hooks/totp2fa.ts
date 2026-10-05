@@ -1,10 +1,10 @@
 import { BadRequest } from "@feathersjs/errors";
-import { checkContext } from "feathers-hooks-common";
 import type { HookContext } from "@feathersjs/feathers";
+import { checkContext } from "feathers-hooks-common";
 
+import { defaultOptions } from "../options";
 import getQrCodeSecret from "../utils/get-qr-code-secret";
 import verifyToken from "../utils/verify-token";
-import { defaultOptions } from "../options";
 
 import type { TotpOptions } from "../types";
 
@@ -15,8 +15,8 @@ import type { TotpOptions } from "../types";
  */
 export default function totp2fa(
   options?: TotpOptions
-): (context: HookContext) => HookContext {
-  return async (context: HookContext): HookContext => {
+): (context: HookContext) => Promise<HookContext> {
+  return async (context: HookContext): Promise<HookContext> => {
     options = Object.assign(defaultOptions, options);
 
     // Only run in the after hook of the create method

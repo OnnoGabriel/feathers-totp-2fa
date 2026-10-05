@@ -1,8 +1,8 @@
-import { authenticator } from "otplib";
+import { authenticator } from "@otplib/v12-adapter";
 import qrcode from "qrcode";
 
 import type { Application } from "@feathersjs/feathers";
-import type { User, TotpOptions, QrImageSecret } from "../types";
+import type { QrImageSecret, TotpOptions, User } from "../types";
 
 export default async function getQrCodeSecret(
   app: Application,

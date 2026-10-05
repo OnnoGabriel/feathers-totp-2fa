@@ -1,12 +1,28 @@
 {
-  "name": "feathers-totp-2fa",
-  "version": "0.5.0",
+  "name": "@sopherio/feathers-totp-2fa",
+  "version": "0.6.1",
   "description": "TOTP Two Factor Authentication for Feathers Apps",
-  "author": "Onno Gabriel",
-  "homepage": "https://github.com/OnnoGabriel/feathers-totp-2fa",
+  "author": {
+    "name": "Onno Gabriel",
+    "url": "https://github.com/OnnoGabriel/feathers-totp-2fa"
+  },
+  "contributors": [
+    {
+      "name": "Stefan Sechelmann",
+      "email": "stefan@sopher.io"
+    }
+  ],
+  "homepage": "https://github.com/sopherio/feathers-totp-2fa",
   "repository": {
     "type": "git",
-    "url": "https://github.com/OnnoGabriel/feathers-totp-2fa"
+    "url": "https://github.com/sopherio/feathers-totp-2fa"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "<24",
+      "onFail": "error"
+    }
   },
   "keywords": [
     "feathersjs",
@@ -43,11 +59,12 @@
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
-    "@feathersjs/errors": "^4.5.12",
-    "@feathersjs/feathers": "3.3.1",
+    "@feathersjs/errors": "^4.5.21",
+    "@feathersjs/feathers": "^4.5.21",
+    "@otplib/v12-adapter": "^13.5.0",
     "feathers-hooks-common": "^5.0.6",
-    "otplib": "^12.0.1",
-    "qrcode": "^1.5.0"
+    "otplib": "^13.5.0",
+    "qrcode": "^1.5.4"
   },
   "devDependencies": {
     "@istanbuljs/nyc-config-typescript": "^1.0.1",
